@@ -1,0 +1,30 @@
+/*Problem: Write a C program to delete the element at a given 1-based position pos from an array of n integers. Shift remaining elements to the left.
+
+Input:
+- First line: integer n
+- Second line: n space-separated integers
+- Third line: integer pos (1-based position to delete)
+
+Output:
+- Print the updated array with (n-1) elements, space-separated
+
+Example:
+Input:
+5
+10 20 30 40 50
+2
+
+Output:
+10 30 40 50*/
+int maxProfit(int* prices, int pricesSize) {
+    int min_price = prices[0];
+    int max_profit = 0;
+    for (int i = 1; i < pricesSize; i++) {
+        if (prices[i] < min_price) {
+            min_price = prices[i];
+        } else if (prices[i] - min_price > max_profit) {
+            max_profit = prices[i] - min_price;
+        }
+    }
+    return max_profit;
+}
