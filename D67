@@ -1,0 +1,15 @@
+/*Problem: Print topological ordering of a Directed Acyclic Graph (DAG) using DFS.*/
+#include <stdio.h>
+#include <stdlib.h>
+
+// Node structure for adjacency list
+struct Node {
+    int vertex;
+    struct Node* next;
+};
+
+// Function to create a new node
+struct Node* createNode(int v) {
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    newNode->vertex = v;
+    newNode->next = NULL
