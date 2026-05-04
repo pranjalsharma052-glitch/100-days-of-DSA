@@ -1,0 +1,90 @@
+/*Problem: Using DFS and parent tracking, detect if undirected graph has a cycle.
+
+Output:
+- YES or NO*/
+#include <stdio.h>
+#include <stdlib.h>
+
+// Node structure for adjacency list
+struct Node {
+    int vertex;
+    struct Node* next;
+};
+
+// Function to create a new node
+struct Node* createNode(int v) {
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    newNode->vertex = v;
+    newNode->next = NULL;
+    return newNode;
+}
+
+// DFS function to detect cycle
+int DFS(int v, int parent, int visited[], struct Node* adj[]) {
+    visited[v] = 1;
+
+    struct Node* temp = adj[v];
+    while (temp) {
+        int u = temp->vertex;
+        if (!visited[u]) {
+            if (DFS(u, v, visited, adj)) {
+                return 1; // cycle found
+            }
+        } else if (u != parent) {
+            return 1; // cycle detected (back edge)
+        }
+        temp = temp->next;
+    }
+    return 0;
+}
+
+int main() {
+    int n, m;
+    printf("Enter number of vertices: ");
+    scanf("%d", &n);
+    printf("Enter number of edges: ");
+    scanf("%d", &m);
+
+    struct Node* adj[n];
+    for (int i = 0; i < n; i++) {
+        adj[i] = NULL;
+    }
+
+    printf("Enter %d edges (u v):\n", m);
+    for (int i = 0; i < m; i++) {
+        int u, v;
+        scanf("%d %d", &u, &v);
+
+        // Add edge u -> v
+        struct Node* newNode = createNode(v);
+        newNode->next = adj[u];
+        adj[u] = newNode;
+
+        // Since undirected, also add v -> u
+        newNode = createNode(u);
+        newNode->next = adj[v];
+        adj[v] = newNode;
+    }
+
+    int visited[n];
+    for (int i = 0; i < n; i++) {
+        visited[i] = 0;
+    }
+
+    int hasCycle = 0;
+    for (int i = 0; i < n; i++) {
+        if (!visited[i]) {
+            if (DFS(i, -1, visited, adj)) {
+                hasCycle = 1;
+                break;
+            }
+        }
+    }
+
+    if (hasCycle)
+        printf("YES\n");
+    else
+        printf("NO\n");
+
+    return 0;
+}
