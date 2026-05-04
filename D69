@@ -1,0 +1,22 @@
+/*Problem: Given weighted graph with non-negative edges, compute shortest path from source using priority queue.*/
+#include <stdio.h>
+#include <stdlib.h>
+#include <limits.h>
+
+// Node structure for adjacency list
+struct Node {
+    int vertex;
+    int weight;
+    struct Node* next;
+};
+
+// Function to create a new node
+struct Node* createNode(int v, int w) {
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    newNode->vertex = v;
+    newNode->weight = w;
+    newNode->next = NULL;
+    return newNode;
+}
+
+// Min-heap (priority queue) for
