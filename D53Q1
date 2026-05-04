@@ -1,0 +1,156 @@
+/*Problem Statement:
+Given a binary tree, print its vertical order traversal. Nodes that lie on the same vertical line should be printed together from top to bottom and from left to right.
+
+Input Format:
+- First line contains integer N (number of nodes)
+- Second line contains N space-separated integers representing level-order traversal (-1 indicates NULL)
+
+Output Format:
+- Print nodes column by column from leftmost to rightmost vertical line
+
+Example:
+Input:
+7
+1 2 3 4 5 6 7
+
+Output:
+4
+2
+1 5 6
+3
+7
+
+Explanation:
+Vertical lines are formed based on horizontal distance from root. Nodes sharing the same distance are printed together.*/
+#include <stdio.h>
+#include <stdlib.h>
+
+// Node structure
+struct Node {
+    int data;
+    struct Node* left;
+    struct Node* right;
+};
+
+// Create a new node
+struct Node* createNode(int value) {
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    newNode->data = value;
+    newNode->left = newNode->right = NULL;
+    return newNode;
+}
+
+// Build tree from level-order array
+struct Node* buildTree(int arr[], int n) {
+    if (n == 0 || arr[0] == -1) return NULL;
+
+    struct Node* nodes[n];
+    for (int i = 0; i < n; i++) {
+        if (arr[i] == -1) {
+            nodes[i] = NULL;
+        } else {
+            nodes[i] = createNode(arr[i]);
+        }
+    }
+
+    for (int i = 0; i < n; i++) {
+        if (nodes[i] != NULL) {
+            int leftIndex = 2 * i + 1;
+            int rightIndex = 2 * i + 2;
+            if (leftIndex < n) nodes[i]->left = nodes[leftIndex];
+            if (rightIndex < n) nodes[i]->right = nodes[rightIndex];
+        }
+    }
+
+    return nodes[0]; // root
+}
+
+// Structure to hold node with horizontal distance
+struct Pair {
+    struct Node* node;
+    int hd;
+};
+
+// Queue for BFS
+struct Queue {
+    struct Pair arr[100];
+    int front, rear;
+};
+
+void initQueue(struct Queue* q) {
+    q->front = q->rear = -1;
+}
+
+int isEmpty(struct Queue* q) {
+    return q->front == -1;
+}
+
+void enqueue(struct Queue* q, struct Node* node, int hd) {
+    if (q->rear == 99) return;
+    if (q->front == -1) q->front = 0;
+    q->arr[++q->rear].node = node;
+    q->arr[q->rear].hd = hd;
+}
+
+struct Pair dequeue(struct Queue* q) {
+    struct Pair p = {NULL, 0};
+    if (isEmpty(q)) return p;
+    p = q->arr[q->front];
+    if (q->front == q->rear) q->front = q->rear = -1;
+    else q->front++;
+    return p;
+}
+
+// Vertical order traversal
+void verticalOrder(struct Node* root) {
+    if (root == NULL) return;
+
+    // Map horizontal distance to nodes
+    // For simplicity, use arrays indexed by offset
+    int offset = 50; // shift to handle negative hd
+    int maxSize = 100;
+    int result[maxSize][100]; // store nodes
+    int count[maxSize];       // count per column
+
+    for (int i = 0; i < maxSize; i++) count[i] = 0;
+
+    struct Queue q;
+    initQueue(&q);
+    enqueue(&q, root, 0);
+
+    while (!isEmpty(&q)) {
+        struct Pair p = dequeue(&q);
+        struct Node* node = p.node;
+        int hd = p.hd;
+
+        result[hd + offset][count[hd + offset]++] = node->data;
+
+        if (node->left != NULL) enqueue(&q, node->left, hd - 1);
+        if (node->right != NULL) enqueue(&q, node->right, hd + 1);
+    }
+
+    // Print columns from leftmost to rightmost
+    for (int i = 0; i < maxSize; i++) {
+        if (count[i] > 0) {
+            for (int j = 0; j < count[i]; j++) {
+                printf("%d ", result[i][j]);
+            }
+            printf("\n");
+        }
+    }
+}
+
+int main() {
+    int n;
+    scanf("%d", &n);
+
+    int arr[n];
+    for (int i = 0; i < n; i++) {
+        scanf("%d", &arr[i]);
+    }
+
+    struct Node* root = buildTree(arr, n);
+    verticalOrder(root);
+
+    return 0;
+}
