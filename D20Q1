@@ -1,0 +1,91 @@
+/*Problem: Given an array of integers, count the number of subarrays whose sum is equal to zero.
+
+Input:
+- First line: integer n
+- Second line: n integers
+
+Output:
+- Print the count of subarrays having sum zero
+
+Example:
+Input:
+6
+1 -1 2 -2 3 -3
+
+Output:
+6
+
+Explanation: A subarray is a continuous part of the array. For the input array 1 -1 2 -2 3 -3, the following subarrays have sum zero: [1, -1], [2, -2], [3, -3], [1, -1, 2, -2], [2, -2, 3, -3], and [1, -1, 2, -2, 3, -3]. Since there are 6 such subarrays, the output is 6.*/
+#include <stdio.h>
+#include <stdlib.h>
+
+// Hash map node for prefix sum counts
+struct Node {
+    int sum;
+    int count;
+    struct Node* next;
+};
+
+// Simple hash function
+int hash(int sum, int size) {
+    if (sum < 0) sum = -sum;
+    return sum % size;
+}
+
+// Insert or update prefix sum count
+void insert(struct Node* table[], int size, int sum) {
+    int idx = hash(sum, size);
+    struct Node* curr = table[idx];
+    while (curr) {
+        if (curr->sum == sum) {
+            curr->count++;
+            return;
+        }
+        curr = curr->next;
+    }
+    struct Node* newNode = (struct Node*)malloc(sizeof(struct Node));
+    newNode->sum = sum;
+    newNode->count = 1;
+    newNode->next = table[idx];
+    table[idx] = newNode;
+}
+
+// Get count of a prefix sum
+int getCount(struct Node* table[], int size, int sum) {
+    int idx = hash(sum, size);
+    struct Node* curr = table[idx];
+    while (curr) {
+        if (curr->sum == sum) return curr->count;
+        curr = curr->next;
+    }
+    return 0;
+}
+
+int main() {
+    int n;
+    scanf("%d", &n);
+
+    int arr[n];
+    for (int i = 0; i < n; i++) {
+        scanf("%d", &arr[i]);
+    }
+
+    int size = 10007; // hash table size
+    struct Node* table[size];
+    for (int i = 0; i < size; i++) table[i] = NULL;
+
+    int prefixSum = 0;
+    int count = 0;
+
+    // Insert initial prefix sum = 0
+    insert(table, size, 0);
+
+    for (int i = 0; i < n; i++) {
+        prefixSum += arr[i];
+        count += getCount(table, size, prefixSum);
+        insert(table, size, prefixSum);
+    }
+
+    printf("%d\n", count);
+    return 0;
+}
